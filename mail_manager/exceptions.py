@@ -1,0 +1,2 @@
+class MailManagerException(Exception):
+    pass

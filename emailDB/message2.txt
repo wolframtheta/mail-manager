@@ -1,0 +1,12 @@
+Date: Tue, 07 Feb 2017 21:32:46 +0100 (CET)
+From: Rental <rental@house-rental.com>
+To: me <me@upf.edu>
+Message-ID: message2
+Subject: Paga el alquiler ya.
+
+Dear customer,
+
+you are late in your payment, please pay or LEAVE!
+
+Sincerely yours,
+House rental

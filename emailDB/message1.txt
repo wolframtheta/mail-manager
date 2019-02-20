@@ -1,0 +1,10 @@
+Date: Tue, 07 Feb 2017 21:32:46 +0100 (CET)
+From: Bank <bank@bank.bank.com>
+To: me <me@upf.edu>
+Message-ID: message1
+Subject: Le queda un mes para elegir el mejor banco.
+
+This is the bank message content!
+
+Regards,
+Bank manager
