@@ -33,6 +33,9 @@ Subject: {0.subject}
         self.body = body
         self.references = 0
 
+    def __eq__(self, other):
+        return self.id == other.id
+
     def __str__(self):
         """
         This function is called when the menu wants to show the content of the email to the user.
