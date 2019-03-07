@@ -73,7 +73,7 @@ def choose_folder(folder_names):
     :return: the name of the folder chosen by the user
     """
 
-    folder_name = None
+    folder_names= None
     if not folder_names:
         print("There are no folders in the database yet.")
 
@@ -83,7 +83,7 @@ def choose_folder(folder_names):
             print("  {}. {}".format(idx + 1, name))
 
         cancel = False
-        while not cancel and not folder_name:
+        while not cancel and not folder_names:
             option = read_int_option("Choose a folder: (0 to cancel)\n", 0, len(folder_names) + 1)
             if option:
                 folder_name = folder_names[option - 1]
@@ -95,7 +95,7 @@ def choose_folder(folder_names):
             else:
                 print("Invalid option, try again.")
 
-    return folder_name
+    return folder_names
 
 
 def list_emails(db):
@@ -143,6 +143,11 @@ def show_folders(db):
 
     :param db: An email database.
     """
+    db = Database(None,None)
+    folder_names= db.folders
+    folder_name = choose_folder(folder_names)
+    print(db.folders[folder_name])
+
     pass
 
 
@@ -152,10 +157,11 @@ def create_folder(db):
 
     :param db: An email database.
     """
-    folder_name=input('¿Que nombre le pondrá a la nueva carpeta?')
-    db= Database()
-    db.create_folder(folder_name)
+    folder_name = input('¿Que nombre le pondrá a la nueva carpeta?\n')
 
+    db= Database(None, None)
+    db.create_folder(folder_name)
+    print(db.folders,'\n', 'Te carpeta ha sido creada')
     pass
 
 
@@ -165,9 +171,10 @@ def delete_folder(db):
 
     :param db: An email database.
     """
-    db = Database()
-    folder_name = db.folders
-    choose_folder(folder_name)
+    db= Database(None, None)
+    folder_name= db.folders
+    folder_name= choose_folder(folder_name)
+    db.remove_folder(folder_name)
 
     pass
 

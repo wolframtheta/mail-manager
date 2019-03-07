@@ -161,5 +161,7 @@ class Database:
         Returns a list with the folder names stored in the database.
         :return: a list of folder names.
         """
-
-        return []
+        list=[]
+        for name in self.folders:
+            list.append(name)
+        return list
