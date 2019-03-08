@@ -32,10 +32,12 @@ class LinkedList:
         self.first = None
         self.last = None
 
+
     def append(self, item):
         """
         Add an item to the end of the list.
         """
+
         node = Node(item)
 
         if not self.size:
@@ -45,6 +47,7 @@ class LinkedList:
 
         self.last = node
         self.size += 1
+
 
     def insert(self, index, item):
         """
@@ -56,6 +59,7 @@ class LinkedList:
         :param index: index where the item should be stored.
         :param item: object to be stored into the linked list.
         """
+
         if index > self.size or index < 0:
             raise IndexError("Index is out of range")
 
@@ -83,6 +87,7 @@ class LinkedList:
                 self.last = node
             self.size += 1
 
+
     def remove(self, item):
         """
         Remove from the list the first occurrence of item.
@@ -90,7 +95,9 @@ class LinkedList:
         Raises ValueError if there is no such item.
 
         :param item: object to be removed from the linked list.
+
         """
+
 
         if not self.size:
             raise IndexError("The list is empty")

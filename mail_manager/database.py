@@ -154,6 +154,11 @@ class Database:
 
         :param folder_name: the name of the new folder
         """
+
+        folder= Folder(folder_name)
+
+        self.folders[folder.name]= folder.emails
+
         pass
 
     def remove_folder(self, folder_name):
@@ -164,6 +169,8 @@ class Database:
 
         :param folder_name: the name of the folder to be removed
         """
+        self.folders.pop(folder_name)
+
         pass
 
     def search(self, text):
@@ -173,6 +180,8 @@ class Database:
         :param text: the text to be searched
         :return: the list of emails containing that text.
         """
+
+
         return []
 
     def get_folder_names(self):
@@ -180,5 +189,7 @@ class Database:
         Returns a list with the folder names stored in the database.
         :return: a list of folder names.
         """
-
-        return []
+        list=[]
+        for name in self.folders:
+            list.append(name)
+        return list
