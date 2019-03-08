@@ -54,7 +54,7 @@ def load_database(db_config):
     :param db_config:
     :return: Database object
     """
-
+    return
     with open(db_config.get_config_path(), 'r') as f:
         try:
             line = f.readline()
