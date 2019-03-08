@@ -26,12 +26,14 @@ class LinkedList:
         Initializes the linked list. Take into account that you'll need to keep track of the first and/or
         the last element. Maybe is advisable also to have an updated size attribute.
         """
+
         pass
 
     def append(self, item):
         """
         Add an item to the end of the list.
         """
+
         pass
 
     def insert(self, index, item):
@@ -44,6 +46,7 @@ class LinkedList:
         :param index: index where the item should be stored.
         :param item: object to be stored into the linked list.
         """
+
         pass
 
     def remove(self, item):
@@ -53,7 +56,9 @@ class LinkedList:
         Raises ValueError if there is no such item.
 
         :param item: object to be removed from the linked list.
+
         """
+
         pass
 
     def pop(self, index=-1):
