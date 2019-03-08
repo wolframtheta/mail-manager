@@ -1,5 +1,3 @@
-<<<<<<< HEAD:mail_manager/email.py
-
 
 class Email:
     """

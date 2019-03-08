@@ -143,7 +143,7 @@ def show_folders(db):
 
     :param db: An email database.
     """
-    folder_name = choose_folder(Database.folders)
+    folder_name = choose_folder(db.folders)
     print(db.folders[folder_name])
 
     pass
