@@ -156,8 +156,8 @@ def create_folder(db):
     :param db: An email database.
     """
     folder_name = input('¿Que nombre le pondrá a la nueva carpeta?\n')
-    Database.create_folder(folder_name)
-    print(Database.folders,'\n', 'Tu carpeta ha sido creada')
+    db.create_folder(folder_name)
+    print(db.folders,'\n', 'Tu carpeta ha sido creada')
     pass
 
 
@@ -167,9 +167,9 @@ def delete_folder(db):
 
     :param db: An email database.
     """
-
-    folder_name= choose_folder(Database.folders)
-    Database.remove_folder(folder_name)
+    folder_names = db.folders
+    folder_name= choose_folder(folder_names)
+    db.remove_folder(folder_name)
 
     pass
 
