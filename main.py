@@ -3,7 +3,7 @@ import datetime
 
 from mail_manager import utils
 from mail_manager.database import Database, DatabaseConfiguration
-from mail_manager.email_ import Email
+from mail_manager.email import Email
 from mail_manager.exceptions import MailManagerException
 
 
@@ -124,8 +124,22 @@ def create_email(db):
 
     :param db: An email database.
     """
-    pass
 
+    subject = input("Type the subject of the new email\n")
+
+    sender = input("Type the sender email\n")
+
+    receiver = input("Type the receiver email\n")
+
+    #TODO body multiple lines
+    body = input("Type the body of the new email\n")
+    date = datetime.datetime.now()
+    date.utcoffset()
+
+    email = Email('1', sender, receiver, subject, date.strftime("%a, %d %Y %X + %z(%Z)"), body)
+
+    db.add_email(email)
+    utils.write_email(email, db)
 
 def delete_email(db):
     """
