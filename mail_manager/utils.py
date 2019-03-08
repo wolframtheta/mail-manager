@@ -3,7 +3,7 @@ import re
 import logging
 
 from .database import Database, DatabaseConfiguration
-from .email import Email
+from .email_ import Email
 from .exceptions import MailManagerException
 
 
