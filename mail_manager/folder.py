@@ -1,5 +1,5 @@
 from .exceptions import MailManagerException
-from .email import Email
+from .email_ import Email
 from .linked_list import LinkedList
 
 

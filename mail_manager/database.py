@@ -1,7 +1,7 @@
 import logging
 import os
 
-from .email import Email
+from .email_ import Email
 from .folder import Folder
 from .exceptions import MailManagerException
 from .linked_list import LinkedList
@@ -81,7 +81,17 @@ class Database:
         :param folder_name: Name of the older to which the email is added. If not provided, defaults to outbox folder.
         :return: The email id
         """
-        pass
+        if not folder_name:
+            folder_name = "outbox"
+        if not folder_name in self.folders:
+            raise MailManagerException("La carpeta " + folder_name + " no existe")
+        try:
+            self.emails.index(email)
+        except:
+            self.emails.append(email)
+
+        self.folders[folder_name].append(email.id)
+
 
     def remove_email(self, email, folder_name=None):
         """
@@ -95,7 +105,19 @@ class Database:
         :return: The number of folder referencing this email.
         """
 
-        return 0
+        if not folder_name:
+            try:
+                for folder in self.folders:
+                    self.folders[folder].remove(email.id)
+                self.emails.remove(email)
+            except:
+                pass
+        else:
+            if not folder_name in self.folders:
+                raise MailManagerException("La carpeta " + folder_name + " no existe")
+            self.folders[folder_name].remove(email.id)
+
+
 
     def get_email(self, email_id):
         """
@@ -105,7 +127,10 @@ class Database:
         :return: If email id is found in the database it returns it. If it is not found it returns None.
         """
 
-        return None
+        index = self.emails.index(Email(email_id))
+        email = self.emails.pop(index)
+        self.emails.insert(index, email)
+        return email
 
     def get_email_ids(self, folder_name=None):
         """
@@ -116,9 +141,12 @@ class Database:
         :return: Returns the list of email ids of a given folder. If the folder_name parameter is not passed
          it returns the list of emails of the database.
         """
-        email_ids = []
 
-        return email_ids
+        if not folder_name in self.folders:
+            raise MailManagerException("La carpeta " + folder_name + " no existe")
+
+        return self.folders[folder_name]
+
 
     def create_folder(self, folder_name):
         """

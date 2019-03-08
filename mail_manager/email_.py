@@ -51,7 +51,6 @@ Subject: {0.subject}
 
 
 
-=======
 
 
 class Email:
@@ -104,4 +103,3 @@ Subject: {0.subject}
 
 
 
->>>>>>> 46b0b9b42691f8e374c5b18d86edf46fceb14758:mail_manager/email_.py
