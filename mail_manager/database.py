@@ -1,7 +1,7 @@
 import logging
 import os
 
-from .email_ import Email
+from .email import Email
 from .folder import Folder
 from .exceptions import MailManagerException
 from .linked_list import LinkedList
