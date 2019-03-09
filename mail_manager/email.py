@@ -1,3 +1,4 @@
+
 class Email:
     """
     The email class contains all the information related to an email like the subject, the sender, etc.
