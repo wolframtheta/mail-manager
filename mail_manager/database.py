@@ -82,13 +82,11 @@ class Database:
         :return: The email id
         """
         if not folder_name:
-            folder_name = "outbox"
+            folder_name = "OutBox"
         if not folder_name in self.folders:
             raise MailManagerException("La carpeta " + folder_name + " no existe")
-        try:
-            self.emails.index(email)
-        except:
-            self.emails.append(email)
+
+        self.emails.append(email)
 
         self.folders[folder_name].append(email.id)
 
@@ -155,11 +153,11 @@ class Database:
         :param folder_name: the name of the new folder
         """
 
-        folder= Folder(folder_name)
+        folder = Folder(folder_name)
 
-        self.folders[folder.name]= folder.emails
+        self.folders[folder.name] = folder.emails
 
-        pass
+        return folder_name
 
     def remove_folder(self, folder_name):
         """

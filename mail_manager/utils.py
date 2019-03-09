@@ -16,7 +16,7 @@ def load_email(email_dir, email_id, email_extension='.txt'):
     :param email_extension:
     :return: it returns an email object
     """
-    return None
+    return Email(email_id, "sender", "receiver", "subject", "date", "body")
 
 def write_email(email, db, db_config=None):
     """
@@ -54,29 +54,31 @@ def load_database(db_config):
     :param db_config:
     :return: Database object
     """
-    return
     with open(db_config.get_config_path(), 'r') as f:
         try:
             line = f.readline()
-            while not line.startswith('Message_Id: '):
+            while not line.startswith('Message-ID: '):
                 line = f.readline()
             db = Database(db_config, int(line[12:]))
 
-            while not line.startswith('Folders: '):
+            while not line.startswith('Folders:'):
                 line = f.readline()
             line = f.readline()
-            while not line.endswith(":") or line.strip() == 'End':
-                if not line.strip():
-                    db.create_folder(line.strip())
-                line = f.readline()
 
+            inside_folder = False
             while not line.strip() == "End":
-                folder = line[:-10]
-                while not line.endswith(":") or line.strip() == 'End':
-                    if not line.strip():
-                        email = load_email(db_config.email_dir, line.strip(), db_config.email_extension)
-                        db.add_email(email, folder)
-                    line = f.readline()
+                if line == "\n":
+                    inside_folder = False
+                if inside_folder:
+                    email = load_email(db_config.email_dir, line.strip(), db_config.email_extension)
+                    db.add_email(email, folder)
+                if line.endswith("Messages:\n"):
+                    folder = db.create_folder(line.strip("Messages:\n").strip())
+                    inside_folder = True
+
+
+
+                line = f.readline()
             f.close()
             return db
         except:
