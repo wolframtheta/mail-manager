@@ -167,9 +167,13 @@ class Database:
 
         :param folder_name: the name of the folder to be removed
         """
-        self.folders.pop(folder_name)
+        try:
+            self.folders.pop(folder_name)
 
-        pass
+        except:
+            raise MailManagerException("La carpeta no existeix!")
+
+
 
     def search(self, text):
         """
