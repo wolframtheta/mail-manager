@@ -167,9 +167,9 @@ class Database:
 
         :param folder_name: the name of the folder to be removed
         """
-        self.folders.pop(folder_name)
+        del self.folders[folder_name]
 
-        pass
+        return self.folders
 
     def search(self, text):
         """

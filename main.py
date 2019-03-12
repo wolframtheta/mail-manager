@@ -39,7 +39,7 @@ def choose_email(email_ids):
     :return: the email id chosen by the user
     """
 
-    email_id = None
+
     if not email_ids:
         print("There are no emails in the database yet.")
 
@@ -73,29 +73,31 @@ def choose_folder(folder_names):
     :return: the name of the folder chosen by the user
     """
 
-    folder_names= None
+
     if not folder_names:
         print("There are no folders in the database yet.")
 
     else:
         print("The database contains the following folders:")
+        names = []
         for idx, name in enumerate(folder_names):
             print("  {}. {}".format(idx + 1, name))
-
-        cancel = False
-        while not cancel and not folder_names:
+            names.append(name)
+        cancel = True
+        while cancel and names:
             option = read_int_option("Choose a folder: (0 to cancel)\n", 0, len(folder_names) + 1)
             if option:
-                folder_name = folder_names[option - 1]
+                folder_name = names[option - 1]
+                cancel = False
 
             elif option == 0:
-                cancel = True
+                cancel = False
                 print("Operation cancelled!")
 
             else:
                 print("Invalid option, try again.")
 
-    return folder_names
+    return folder_name
 
 
 def list_emails(db):
@@ -158,7 +160,9 @@ def show_folders(db):
     :param db: An email database.
     """
     folder_name = choose_folder(db.folders)
-    print(db.folders[folder_name])
+    email = db.folders[folder_name]
+    print(email)
+
 
     pass
 
