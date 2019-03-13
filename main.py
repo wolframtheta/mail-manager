@@ -123,9 +123,13 @@ def show_email(db):
 
     :param db: An email database.
     """
-    folder =choose_folder(db.folders)
-    email=choose_email(db.folders[folder])
-    db.get_email(email)
+    db_config = DatabaseConfiguration('emailDB')
+    email_id = choose_email(db.get_email_ids())
+    print(email_id)
+    path = db_config.get_email_path(email_id)
+    print(path)
+    utils.load_email(path,email_id)
+
 
     pass
 
@@ -195,6 +199,7 @@ def create_folder(db):
     folder_name= input('¿Que nombre le pondrá a la nueva carpeta?\n')
     db.create_folder(folder_name)
     print(db.folders,'\n', 'Tu carpeta ha sido creada')
+    utils.write_database(db)
 
     pass
 
@@ -208,6 +213,7 @@ def delete_folder(db):
     folder_names = db.folders
     folder_name= choose_folder(folder_names)
     db.remove_folder(folder_name)
+    utils.write_database(db)
 
     pass
 

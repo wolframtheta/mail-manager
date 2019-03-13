@@ -17,8 +17,8 @@ def load_email(email_dir, email_id, email_extension='.txt'):
     :return: it returns an email object
     """
 
-    f = open(os.path.join(email_dir, str(email_id) + email_extension), 'r')
-    email = Email(email_id=email_id)
+    f = open(os.path.join(email_dir, str(email_id), 'r')
+    email = Email(email_id= email_id )
     line = f.readline()
     start_body = False
     while line:
