@@ -169,6 +169,7 @@ class Database:
         """
         del self.folders[folder_name]
 
+
         return self.folders
 
     def search(self, text):

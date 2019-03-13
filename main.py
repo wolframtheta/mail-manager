@@ -164,6 +164,9 @@ def delete_email(db):
 
     :param db: An email database.
     """
+    folder=choose_folder(db.folders)
+    email=choose_email(db.folders[folder])
+
     pass
 
 def show_folders(db):
@@ -190,6 +193,7 @@ def create_folder(db):
     folder_name= input('¿Que nombre le pondrá a la nueva carpeta?\n')
     db.create_folder(folder_name)
     print(db.folders,'\n', 'Tu carpeta ha sido creada')
+
     pass
 
 
