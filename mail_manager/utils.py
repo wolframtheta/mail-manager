@@ -16,7 +16,30 @@ def load_email(email_dir, email_id, email_extension='.txt'):
     :param email_extension:
     :return: it returns an email object
     """
-    return Email(email_id, "sender", "receiver", "subject", "date", "body")
+
+    f = open(os.path.join(email_dir, str(email_id) + email_extension), 'r')
+    email = Email(email_id=email_id)
+    line = f.readline()
+    start_body = False
+    while line:
+        if start_body:
+            if not email.body:
+                email.body = line
+            else:
+                email.body += line
+        if line.startswith('Date: '):
+           email.date = line[6:len(line)].strip('\n')
+        elif line.startswith('From: '):
+           email.sender = line[6:len(line)].strip('\n')
+        elif line.startswith('To: '):
+            email.receiver = line[4:len(line)].strip('\n')
+        elif line.startswith('Subject: '):
+            email.subject = line[9:len(line)].strip('\n')
+        elif line.startswith('\n'):
+            start_body = True
+        line = f.readline()
+
+    return email
 
 def write_email(email, db, db_config=None):
     """
@@ -75,14 +98,14 @@ def load_database(db_config):
             line = f.readline()
 
             inside_folder = False
-            while not line.strip() == "End":
+            while line:
                 if line == "\n":
                     inside_folder = False
                 if inside_folder:
                     email = load_email(db_config.email_dir, line.strip(), db_config.email_extension)
                     db.add_email(email, folder)
                 if line.endswith("Messages:\n"):
-                    folder = db.create_folder(line.strip("Messages:\n").strip())
+                    folder = db.create_folder(line[0:len(line) - 10].strip())
                     inside_folder = True
 
 

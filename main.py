@@ -39,7 +39,7 @@ def choose_email(email_ids):
     :return: the email id chosen by the user
     """
 
-
+    email_id = 0
     if not email_ids:
         print("There are no emails in the database yet.")
 
@@ -73,6 +73,7 @@ def choose_folder(folder_names):
     :return: the name of the folder chosen by the user
     """
 
+    folder_name = None
     if not folder_names:
         print("There are no folders in the database yet.")
 
@@ -105,9 +106,13 @@ def list_emails(db):
 
     :param db: An email database.
     """
-
-    for email in db.get_email_ids():
-        print(email)
+    current = db.emails.first
+    i = 1
+    while current is not None:
+        subject = '%.15s' % current.data.subject + '...' if len(current.data.subject) > 15 else current.data.subject
+        print(str(i) + ' - From: ' + current.data.sender + ' Subject: ' + subject + ' Date: ' + str(current.data.date))
+        current = current.next
+        i += 1
 
 
 def show_email(db):
