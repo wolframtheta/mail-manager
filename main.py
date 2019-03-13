@@ -39,7 +39,7 @@ def choose_email(email_ids):
     :return: the email id chosen by the user
     """
 
-
+    email_id = 0
     if not email_ids:
         print("There are no emails in the database yet.")
 
@@ -73,7 +73,8 @@ def choose_folder(folder_names):
     :return: the name of the folder chosen by the user
     """
 
-
+    folder_name = None
+    
     if not folder_names:
         print("There are no folders in the database yet.")
 
@@ -106,17 +107,13 @@ def list_emails(db):
 
     :param db: An email database.
     """
-    email=[]
-    for folder in db.folders:
-        emails = db.folders[folder]
-        email.append(emails)
-        if not emails:
-            pass
-        else:
-            print(emails,'\n')
-
-
-    pass
+    current = db.emails.first
+    i = 1
+    while current is not None:
+        subject = '%.15s' % current.data.subject + '...' if len(current.data.subject) > 15 else current.data.subject
+        print(str(i) + ' - From: ' + current.data.sender + ' Subject: ' + subject + ' Date: ' + str(current.data.date))
+        current = current.next
+        i += 1
 
 
 def show_email(db):
@@ -149,13 +146,15 @@ def create_email(db):
 
     #TODO body multiple lines
     body = input("Type the body of the new email\n")
-    date = datetime.datetime.now()
-    date.utcoffset()
+    date = datetime.datetime.utcnow()
 
-    email = Email('1', sender, receiver, subject, date.strftime("%a, %d %Y %X + %z(%Z)"), body)
+    email = Email("message" + str(db.email_id_seed), sender, receiver, subject, date.strftime("%a, %d %Y %X + %z(%Z)"), body)
+
+    utils.write_email(email, db, db.db_config)
 
     db.add_email(email)
-    utils.write_email(email, db)
+    db.email_id_seed += 1
+    utils.write_database(db)
 
 def delete_email(db):
     """
@@ -164,10 +163,13 @@ def delete_email(db):
 
     :param db: An email database.
     """
-    folder=choose_folder(db.folders)
-    email=choose_email(db.folders[folder])
 
-    pass
+
+    email = choose_email(db.get_email_ids())
+    db.remove_email(email)
+    utils.write_database(db)
+    utils.delete_email(email, db)
+
 
 def show_folders(db):
     """

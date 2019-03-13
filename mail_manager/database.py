@@ -89,6 +89,8 @@ class Database:
         self.emails.append(email)
 
         self.folders[folder_name].append(email.id)
+        # self.email_id_seed += 1
+
 
 
     def remove_email(self, email, folder_name=None):
@@ -106,10 +108,16 @@ class Database:
         if not folder_name:
             try:
                 for folder in self.folders:
-                    self.folders[folder].remove(email.id)
-                self.emails.remove(email)
+                    current = self.folders[folder].first
+                    while current is not None:
+                        if current.data == email:
+                            self.folders[folder].remove(email)
+                            break
+                        current = current.next
+                self.emails.remove(self.get_email(email))
+
             except:
-                pass
+                raise MailManagerException("There is no email with that id")
         else:
             if not folder_name in self.folders:
                 raise MailManagerException("La carpeta " + folder_name + " no existe")
@@ -124,11 +132,12 @@ class Database:
         :param email_id:
         :return: If email id is found in the database it returns it. If it is not found it returns None.
         """
-
-        index = self.emails.index(Email(email_id))
-        email = self.emails.pop(index)
-        self.emails.insert(index, email)
-        return email
+        current = self.emails.first
+        while current is not None:
+            if current.data.id == email_id:
+                return current.data
+            current = current.next
+        return None
 
     def get_email_ids(self, folder_name=None):
         """
@@ -139,11 +148,22 @@ class Database:
         :return: Returns the list of email ids of a given folder. If the folder_name parameter is not passed
          it returns the list of emails of the database.
         """
-
-        if not folder_name in self.folders:
-            raise MailManagerException("La carpeta " + folder_name + " no existe")
-
-        return self.folders[folder_name]
+        emails = []
+        current = None
+        try:
+            if folder_name is None:
+                current = self.emails.first
+            elif len(self.folders[folder_name]) > 0:
+                current = self.folders[folder_name].first
+        except:
+            raise MailManagerException("There is not folder in the Database with that name")
+        finally:
+            while current is not None:
+                email = current.data.id if folder_name is None else current.data
+                if email not in emails:
+                    emails.append(email)
+                current = current.next
+        return emails
 
 
     def create_folder(self, folder_name):
@@ -167,10 +187,13 @@ class Database:
 
         :param folder_name: the name of the folder to be removed
         """
-        del self.folders[folder_name]
+        try:
+            self.folders.pop(folder_name)
 
 
-        return self.folders
+        except:
+            raise MailManagerException("La carpeta no existeix!")
+
 
     def search(self, text):
         """

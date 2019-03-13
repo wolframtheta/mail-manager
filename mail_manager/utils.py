@@ -16,7 +16,30 @@ def load_email(email_dir, email_id, email_extension='.txt'):
     :param email_extension:
     :return: it returns an email object
     """
-    return Email(email_id, "sender", "receiver", "subject", "date", "body")
+
+    f = open(os.path.join(email_dir, str(email_id) + email_extension), 'r')
+    email = Email(email_id=email_id)
+    line = f.readline()
+    start_body = False
+    while line:
+        if start_body:
+            if not email.body:
+                email.body = line
+            else:
+                email.body += line
+        if line.startswith('Date: '):
+           email.date = line[6:len(line)].strip('\n')
+        elif line.startswith('From: '):
+           email.sender = line[6:len(line)].strip('\n')
+        elif line.startswith('To: '):
+            email.receiver = line[4:len(line)].strip('\n')
+        elif line.startswith('Subject: '):
+            email.subject = line[9:len(line)].strip('\n')
+        elif line.startswith('\n'):
+            start_body = True
+        line = f.readline()
+
+    return email
 
 def write_email(email, db, db_config=None):
     """
@@ -26,7 +49,9 @@ def write_email(email, db, db_config=None):
     :param db: Database
     :param db_config: Database Configuration
     """
-    pass
+    f = open(os.path.join(db_config.email_dir, str(email.id) + db_config.email_extension), 'a')
+    f.write(str(email))
+    f.close()
 
 def delete_email(email, db, db_config=None):
     """
@@ -36,7 +61,14 @@ def delete_email(email, db, db_config=None):
     :param db: Database
     :param db_config: Database Configuration
     """
-    pass
+
+    if db_config is None:
+        db_config = db.db_config
+    path = os.path.join(db_config.email_dir, email + db_config.email_extension)
+    if os.path.exists(path):
+        os.remove(path)
+    else:
+        raise MailManagerException("There is no file with that id")
 
 
 def load_database(db_config):
@@ -66,14 +98,14 @@ def load_database(db_config):
             line = f.readline()
 
             inside_folder = False
-            while not line.strip() == "End":
+            while line:
                 if line == "\n":
                     inside_folder = False
                 if inside_folder:
                     email = load_email(db_config.email_dir, line.strip(), db_config.email_extension)
                     db.add_email(email, folder)
                 if line.endswith("Messages:\n"):
-                    folder = db.create_folder(line.strip("Messages:\n").strip())
+                    folder = db.create_folder(line[0:len(line) - 10].strip())
                     inside_folder = True
 
 
@@ -96,14 +128,14 @@ def write_database(db, db_config=None):
         db_config = db.db_config                  #si no et donen la dada, agafa la de la base de dades per defecte
 
     with open(db_config.get_config_path(), 'w') as f:
-        f.write("Message-Id: " + db.email_id_seed + '\n\n')
-        f.write("Folders: \n")
+        f.write("Message-ID: " + str(db.email_id_seed) + '\n\n')
+        f.write("Folders:\n")
         for k in db.get_folder_names():
             f.write(k + "\n")
         for k in db.get_folder_names():
-            f.write(k + " Mensajes: \n")
+            f.write('\n')
+            f.write(k + " Messages:\n")
             for e in db.get_email_ids(k):
                 f.write(e + '\n')
-            f.write("\n")
-        f.write("End")
+        f.write("\nEnd\n")
         f.close()
