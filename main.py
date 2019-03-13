@@ -106,6 +106,16 @@ def list_emails(db):
 
     :param db: An email database.
     """
+    email=[]
+    for folder in db.folders:
+        emails = db.folders[folder]
+        email.append(emails)
+        if not emails:
+            pass
+        else:
+            print(emails,'\n')
+
+
     pass
 
 
@@ -116,6 +126,10 @@ def show_email(db):
 
     :param db: An email database.
     """
+    folder =choose_folder(db.folders)
+    email=choose_email(db.folders[folder])
+    db.get_email(email)
+
     pass
 
 
