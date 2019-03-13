@@ -73,7 +73,6 @@ def choose_folder(folder_names):
     :return: the name of the folder chosen by the user
     """
 
-
     if not folder_names:
         print("There are no folders in the database yet.")
 
@@ -106,17 +105,9 @@ def list_emails(db):
 
     :param db: An email database.
     """
-    email=[]
-    for folder in db.folders:
-        emails = db.folders[folder]
-        email.append(emails)
-        if not emails:
-            pass
-        else:
-            print(emails,'\n')
 
-
-    pass
+    for email in db.get_email_ids():
+        print(email)
 
 
 def show_email(db):
@@ -149,13 +140,15 @@ def create_email(db):
 
     #TODO body multiple lines
     body = input("Type the body of the new email\n")
-    date = datetime.datetime.now()
-    date.utcoffset()
+    date = datetime.datetime.utcnow()
 
-    email = Email('1', sender, receiver, subject, date.strftime("%a, %d %Y %X + %z(%Z)"), body)
+    email = Email("message" + str(db.email_id_seed), sender, receiver, subject, date.strftime("%a, %d %Y %X + %z(%Z)"), body)
+
+    utils.write_email(email, db, db.db_config)
 
     db.add_email(email)
-    utils.write_email(email, db)
+    db.email_id_seed += 1
+    utils.write_database(db)
 
 def delete_email(db):
     """
@@ -164,7 +157,12 @@ def delete_email(db):
 
     :param db: An email database.
     """
-    pass
+
+    email = choose_email(db.get_email_ids())
+    db.remove_email(email)
+    utils.write_database(db)
+    utils.delete_email(email, db)
+
 
 def show_folders(db):
     """

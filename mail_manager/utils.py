@@ -26,7 +26,9 @@ def write_email(email, db, db_config=None):
     :param db: Database
     :param db_config: Database Configuration
     """
-    pass
+    f = open(os.path.join(db_config.email_dir, str(email.id) + db_config.email_extension), 'a')
+    f.write(str(email))
+    f.close()
 
 def delete_email(email, db, db_config=None):
     """
@@ -36,7 +38,14 @@ def delete_email(email, db, db_config=None):
     :param db: Database
     :param db_config: Database Configuration
     """
-    pass
+
+    if db_config is None:
+        db_config = db.db_config
+    path = os.path.join(db_config.email_dir, email + db_config.email_extension)
+    if os.path.exists(path):
+        os.remove(path)
+    else:
+        raise MailManagerException("There is no file with that id")
 
 
 def load_database(db_config):
@@ -96,14 +105,14 @@ def write_database(db, db_config=None):
         db_config = db.db_config                  #si no et donen la dada, agafa la de la base de dades per defecte
 
     with open(db_config.get_config_path(), 'w') as f:
-        f.write("Message-Id: " + db.email_id_seed + '\n\n')
-        f.write("Folders: \n")
+        f.write("Message-ID: " + str(db.email_id_seed) + '\n\n')
+        f.write("Folders:\n")
         for k in db.get_folder_names():
             f.write(k + "\n")
         for k in db.get_folder_names():
-            f.write(k + " Mensajes: \n")
+            f.write('\n')
+            f.write(k + " Messages:\n")
             for e in db.get_email_ids(k):
                 f.write(e + '\n')
-            f.write("\n")
-        f.write("End")
+        f.write("\nEnd\n")
         f.close()
