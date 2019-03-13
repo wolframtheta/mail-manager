@@ -74,6 +74,7 @@ def choose_folder(folder_names):
     """
 
     folder_name = None
+    
     if not folder_names:
         print("There are no folders in the database yet.")
 
