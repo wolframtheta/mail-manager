@@ -17,7 +17,7 @@ def load_email(email_dir, email_id, email_extension='.txt'):
     :return: it returns an email object
     """
 
-    f = open(os.path.join(email_dir, str(email_id) + email_extension),'r')
+    f = open(os.path.join(email_dir, str(email_id) + email_extension), 'r')
     email = Email(email_id=email_id)
     line = f.readline()
     start_body = False
@@ -41,6 +41,7 @@ def load_email(email_dir, email_id, email_extension='.txt'):
 
     return email
 
+
 def write_email(email, db, db_config=None):
     """
     This function writes the email text file corresponding to a given email object.
@@ -53,6 +54,7 @@ def write_email(email, db, db_config=None):
     f.write(str(email))
     f.close()
 
+
 def delete_email(email, db, db_config=None):
     """
     Removes the email text file corresponding to a given email object (Optional, be careful)
@@ -64,7 +66,7 @@ def delete_email(email, db, db_config=None):
 
     if db_config is None:
         db_config = db.db_config
-    path = os.path.join(db_config.email_dir, email + db_config.email_extension)
+    path = os.path.join(db_config.email_dir, email.id + db_config.email_extension)
     if os.path.exists(path):
         os.remove(path)
     else:
@@ -107,11 +109,10 @@ def load_database(db_config):
                 if line.endswith("Messages:\n"):
                     folder = db.create_folder(line[0:len(line) - 10].strip())
                     inside_folder = True
-
-
-
                 line = f.readline()
             f.close()
+            if not ('Inbox' or 'OutBox') in db.folders:
+                raise MailManagerException("Invalid configuration file")
             return db
         except:
             raise MailManagerException("Invalid configuration file")
@@ -124,8 +125,8 @@ def write_database(db, db_config=None):
     :param db: Database
     :param db_config: Database Configuration
     """
-    if db_config == None:
-        db_config = db.db_config                  #si no et donen la dada, agafa la de la base de dades per defecte
+    if db_config is None:
+        db_config = db.db_config
 
     with open(db_config.get_config_path(), 'w') as f:
         f.write("Message-ID: " + str(db.email_id_seed) + '\n\n')

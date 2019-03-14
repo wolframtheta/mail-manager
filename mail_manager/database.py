@@ -84,14 +84,12 @@ class Database:
         if not folder_name:
             folder_name = "OutBox"
         if not folder_name in self.folders:
-            raise MailManagerException("La carpeta " + folder_name + " no existe")
+            raise MailManagerException("The folder \'" + folder_name + "\' does not exist")
 
-        self.emails.append(email)
-
-        self.folders[folder_name]=email
-        # self.email_id_seed += 1
-
-
+        if email.id not in self.get_email_ids():
+            self.emails.append(email)
+        if email.id not in self.get_email_ids(folder_name):
+            self.folders[folder_name].append(email)
 
     def remove_email(self, email, folder_name=None):
         """
@@ -110,18 +108,18 @@ class Database:
                 for folder in self.folders:
                     current = self.folders[folder].first
                     while current is not None:
-                        if current.data == email:
+                        if current.data.id == email.id:
                             self.folders[folder].remove(email)
                             break
                         current = current.next
-                self.emails.remove(self.get_email(email))
+                self.emails.remove(email)
 
             except:
                 raise MailManagerException("There is no email with that id")
         else:
             if not folder_name in self.folders:
-                raise MailManagerException("La carpeta " + folder_name + " no existe")
-            self.folders[folder_name].remove(email.id)
+                raise MailManagerException("The folder \'" + folder_name + "\' does not exist")
+            self.folders[folder_name].remove(email)
 
 
 
@@ -155,11 +153,13 @@ class Database:
                 current = self.emails.first
             elif len(self.folders[folder_name]) > 0:
                 current = self.folders[folder_name].first
+            else:
+                emails = []
         except:
             raise MailManagerException("There is not folder in the Database with that name")
         finally:
             while current is not None:
-                email = current.data.id if folder_name is None else current.data
+                email = current.data.id
                 if email not in emails:
                     emails.append(email)
                 current = current.next
@@ -210,7 +210,7 @@ class Database:
         Returns a list with the folder names stored in the database.
         :return: a list of folder names.
         """
-        list=[]
+        list = []
         for name in self.folders:
             list.append(name)
         return list

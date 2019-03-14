@@ -179,6 +179,20 @@ class LinkedList:
         self.first = None
         self.last = None
 
+    def exist(self, item):
+        """
+        Return if the item is in the linked list or not.
+        :param item: object to be searched in the linked list.
+        :return: True if appears in the linked list, False otherwise
+        """
+        node = Node(item)
+        current = self.first
+        while current is not None:
+            if current.data is node.data:
+                return True
+            current = current.next
+        return False
+
     def index(self, item, start=0, end=None):
         """
         Return first index of value.
@@ -224,8 +238,7 @@ class LinkedList:
         current = self.first
         while current is not None:
 
-            str_aux = str_aux + ", " + str(current.data)
+            str_aux = str_aux + str(current.data) + "\n"
 
             current = current.next
-        str_aux = "[" + str_aux[2:] + "]"
         return str_aux

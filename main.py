@@ -1,10 +1,12 @@
 import logging
 import datetime
+import sys
 
 from mail_manager import utils
 from mail_manager.database import Database, DatabaseConfiguration
 from mail_manager.email import Email
 from mail_manager.exceptions import MailManagerException
+from mail_manager.linked_list import LinkedList
 
 
 def read_int_option(message, start, end):
@@ -52,15 +54,16 @@ def choose_email(email_ids):
         cancel = False
         while not cancel and not email_id:
             option = read_int_option("Choose an email: (0 to cancel)\n", 0, len(email_ids) + 1)
-            if option:
+
+            if option > len(email_ids):
+                print("Invalid option, try again.")
+
+            elif option:
                 email_id = email_ids[option - 1]
 
             elif option == 0:
                 cancel = True
                 print("Operation cancelled!")
-
-            else:
-                print("Invalid option, try again.")
 
     return email_id
 
@@ -87,16 +90,17 @@ def choose_folder(folder_names):
         cancel = True
         while cancel and names:
             option = read_int_option("Choose a folder: (0 to cancel)\n", 0, len(folder_names) + 1)
-            if option:
+
+            if option > len(folder_names):
+                print("Invalid option, try again.")
+
+            elif option:
                 folder_name = names[option - 1]
                 cancel = False
 
             elif option == 0:
                 cancel = False
                 print("Operation cancelled!")
-
-            else:
-                print("Invalid option, try again.")
 
     return folder_name
 
@@ -144,17 +148,21 @@ def create_email(db):
 
     receiver = input("Type the receiver email\n")
 
-    #TODO body multiple lines
-    body = input("Type the body of the new email\n")
+    text = input("Type the body of the new email\n")
+    body = text
+    while text:
+        text = input()
+        body += '\n' + text
+
     date = datetime.datetime.utcnow()
 
-    email = Email("message" + str(db.email_id_seed), sender, receiver, subject, date.strftime("%a, %d %Y %X + %z(%Z)"), body)
+    email = Email(str(db.email_id_seed) + "EDA1email", sender, receiver, subject, date.strftime("%a, %d %Y %X + +0100 (CET)"), body)
 
     utils.write_email(email, db, db.db_config)
 
     db.add_email(email)
     db.email_id_seed += 1
-    utils.write_database(db)
+
 
 def delete_email(db):
     """
@@ -164,9 +172,8 @@ def delete_email(db):
     :param db: An email database.
     """
 
-    email = choose_email(db.get_email_ids())
+    email = db.get_email(choose_email(db.get_email_ids()))
     db.remove_email(email)
-    utils.write_database(db)
     utils.delete_email(email, db)
 
 
@@ -178,11 +185,11 @@ def show_folders(db):
     :param db: An email database.
     """
     folder_name = choose_folder(db.folders)
-    email = db.folders[folder_name]
-    print(email)
-
-
-    pass
+    emails = db.folders[folder_name]
+    if len(emails) <= 0:
+        print("Folder empty")
+    else:
+        print(emails)
 
 
 def create_folder(db):
@@ -191,12 +198,13 @@ def create_folder(db):
 
     :param db: An email database.
     """
-    folder_name= input('¿Que nombre le pondrá a la nueva carpeta?\n')
-    db.create_folder(folder_name)
-    print(db.folders,'\n', 'Tu carpeta ha sido creada')
-    utils.write_database(db)
+    folder_name = input('What name do you want for the folder?\n')
+    while folder_name not in db.get_folder_names:
+        print("Folder already exists. Choose another name.\n")
+        folder_name = input('What name do you want for the folder?\n')
 
-    pass
+    db.create_folder(folder_name)
+    print('Your folder is created successfully\n')
 
 
 def delete_folder(db):
@@ -206,11 +214,18 @@ def delete_folder(db):
     :param db: An email database.
     """
     folder_names = db.folders
-    folder_name= choose_folder(folder_names)
-    db.remove_folder(folder_name)
-    utils.write_database(db)
-
-    pass
+    folder_name = choose_folder(folder_names)
+    if folder_name is None:
+        return
+    if folder_name is ("Inbox" or "OutBox"):
+        print("You are not allowed to delete this folder.")
+    else:
+        text_conf = "There are emails inside the folder!" if len(db.folders[folder_name]) > 0 else "There are no emails inside the folder."
+        confirm = input(text_conf + " Are you sure you want to delete \'" + folder_name + "\'?\n  1. Yes\n  2. No\n")
+        if confirm == 1:
+            db.remove_folder(folder_name)
+        else:
+            print("Operation cancelled!")
 
 
 def add_email_to_folder(db):
@@ -220,12 +235,9 @@ def add_email_to_folder(db):
 
     :param db: An email database.
     """
-    email = choose_email(db.get_email_ids())
+    email_id = choose_email(db.get_email_ids())
     folder = choose_folder(db.folders)
-    db.add_email(email, folder)
-    utils.write_database(db)
-
-    pass
+    db.folders[folder].append(db.get_email(email_id))
 
 
 def remove_email_from_folder(db):
@@ -258,12 +270,7 @@ def remove_email_from_folder(db):
         else:
             print("Invalid option, try again.")
 
-
-    return email_id
-
-    db.remove_email(email_id,folder)
-
-    pass
+    db.remove_email(email_id, folder)
 
 
 def search(db):
@@ -273,7 +280,23 @@ def search(db):
 
     :param db: An email database.
     """
-    pass
+    search = input("What do you want to search?\n")
+    founds = LinkedList()
+    if len(db.emails) > 0:
+        current = db.emails.first
+        while current is not None:
+            if current.data.subject.find(search) > -1 or current.data.sender.find(search) > -1 or current.data.body.find(search) > -1 or current.data.receiver.find(search) > -1:
+                founds.append(current.data)
+            current = current.next
+
+        current = founds.first
+        i = 1
+        while current is not None:
+            subject = '%.15s' % current.data.subject + '...' if len(current.data.subject) > 15 else current.data.subject
+            print(str(i) + ' - From: ' + current.data.sender + ' Subject: ' + subject + ' Date: ' + str(
+                current.data.date))
+            current = current.next
+            i += 1
 
 
 def show_menu(db):
@@ -328,6 +351,15 @@ def show_menu(db):
             input("\nPress Enter to continue...")
 
 
+def show_inbox(db):
+    print("[Inbox] - EMAILS\n")
+    emails = db.folders["Inbox"]
+    if len(emails) <= 0:
+        print("No messages in Inbox")
+    else:
+        print(emails)
+
+
 def main():
     """
     MAIN function of the email manager.
@@ -340,6 +372,9 @@ def main():
     # This function reads the EMConfig file and returns a Database object with all the information about
     # the state of the email manager.
     db = utils.load_database(db_config)
+
+    # This function shows the Inbox list of messages
+    show_inbox(db)
 
     # Calls the menu
     show_menu(db)
