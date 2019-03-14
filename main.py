@@ -123,12 +123,10 @@ def show_email(db):
 
     :param db: An email database.
     """
-    db_config = DatabaseConfiguration('emailDB')
+
     email_id = choose_email(db.get_email_ids())
-    print(email_id)
-    path = db_config.get_email_path(email_id)
-    print(path)
-    utils.load_email(path,email_id)
+    db.get_email(email_id)
+
 
 
     pass
