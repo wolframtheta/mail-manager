@@ -88,7 +88,7 @@ class Database:
 
         self.emails.append(email)
 
-        self.folders[folder_name].append(email.id)
+        self.folders[folder_name]=email
         # self.email_id_seed += 1
 
 
@@ -189,7 +189,6 @@ class Database:
         """
         try:
             self.folders.pop(folder_name)
-
 
         except:
             raise MailManagerException("La carpeta no existeix!")

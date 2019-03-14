@@ -125,9 +125,7 @@ def show_email(db):
     """
 
     email_id = choose_email(db.get_email_ids())
-    db.get_email(email_id)
-
-
+    print(db.get_email(email_id))
 
     pass
 
@@ -165,7 +163,6 @@ def delete_email(db):
 
     :param db: An email database.
     """
-
 
     email = choose_email(db.get_email_ids())
     db.remove_email(email)
@@ -223,6 +220,10 @@ def add_email_to_folder(db):
 
     :param db: An email database.
     """
+    email = choose_email(db.get_email_ids())
+    folder = choose_folder(db.folders)
+    db.add_email(email, folder)
+    utils.write_database(db)
 
     pass
 
@@ -233,7 +234,35 @@ def remove_email_from_folder(db):
     folder and asks the user to chose which one wants to remove. Then, the chosen mail is removed
 
     :param db: An email database.
+
     """
+
+    folder = choose_folder(db.folders)
+    emails = db.get_email_ids(folder)
+
+    print("The folder contains the following emails:")
+    for idx, email_id in enumerate(emails):
+        print("  {}. {}".format(idx + 1, email_id))
+
+    email_id = None
+    cancel = False
+    while not cancel and not email_id:
+        option = read_int_option("Choose an email: (0 to cancel)\n", 0, len(emails) + 1)
+        if option:
+            email_id = emails[option - 1]
+
+        elif option == 0:
+            cancel = True
+            print("Operation cancelled!")
+
+        else:
+            print("Invalid option, try again.")
+
+
+    return email_id
+
+    db.remove_email(email_id,folder)
+
     pass
 
 

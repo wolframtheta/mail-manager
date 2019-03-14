@@ -8,6 +8,7 @@ newFolder
 test
 
 pepe Messages:
+message8
 
 Inbox Messages:
 message1
@@ -15,6 +16,7 @@ CAFdmR09@mail.gmail.com
 
 OutBox Messages:
 message3
+message8
 message2
 
 newFolder Messages:
