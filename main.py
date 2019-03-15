@@ -41,7 +41,7 @@ def choose_email(email_ids):
     :return: the email id chosen by the user
     """
 
-    email_id = 0
+    email_id = None
     if not email_ids:
         print("There are no emails in the database yet.")
 
@@ -129,7 +129,8 @@ def show_email(db):
     """
 
     email_id = choose_email(db.get_email_ids())
-    print(db.get_email(email_id))
+    if email_id is not None:
+        print(db.get_email(email_id))
 
     pass
 
@@ -148,12 +149,11 @@ def create_email(db):
 
     receiver = input("Type the receiver email\n")
 
-    text = input("Type the body of the new email\n")
-    body = text
-    while text:
-        text = input()
-        body += '\n' + text
-
+    line = input("Type the body of the new email (Type EOF to finish the email)\n")
+    body = ""
+    while line != "EOF":
+        body += line + '\n'
+        line = input()
     date = datetime.datetime.utcnow()
 
     email = Email(str(db.email_id_seed) + "EDA1email", sender, receiver, subject, date.strftime("%a, %d %Y %X + +0100 (CET)"), body)
@@ -171,10 +171,11 @@ def delete_email(db):
 
     :param db: An email database.
     """
-
-    email = db.get_email(choose_email(db.get_email_ids()))
-    db.remove_email(email)
-    utils.delete_email(email, db)
+    email_id = choose_email(db.get_email_ids())
+    if email_id is not None:
+        email = db.get_email(email_id)
+        db.remove_email(email)
+        utils.delete_email(email, db)
 
 
 def show_folders(db):
@@ -185,11 +186,12 @@ def show_folders(db):
     :param db: An email database.
     """
     folder_name = choose_folder(db.folders)
-    emails = db.folders[folder_name]
-    if len(emails) <= 0:
-        print("Folder empty")
-    else:
-        print(emails)
+    if folder_name is not None:
+        emails = db.folders[folder_name]
+        if len(emails) <= 0:
+            print("Folder empty")
+        else:
+            print(emails)
 
 
 def create_folder(db):
@@ -199,12 +201,12 @@ def create_folder(db):
     :param db: An email database.
     """
     folder_name = input('What name do you want for the folder?\n')
-    while folder_name not in db.get_folder_names:
+    while folder_name in db.get_folder_names():
         print("Folder already exists. Choose another name.\n")
         folder_name = input('What name do you want for the folder?\n')
 
     db.create_folder(folder_name)
-    print('Your folder is created successfully\n')
+    print('Your folder is created successfully')
 
 
 def delete_folder(db):
@@ -222,7 +224,7 @@ def delete_folder(db):
     else:
         text_conf = "There are emails inside the folder!" if len(db.folders[folder_name]) > 0 else "There are no emails inside the folder."
         confirm = input(text_conf + " Are you sure you want to delete \'" + folder_name + "\'?\n  1. Yes\n  2. No\n")
-        if confirm == 1:
+        if confirm == '1':
             db.remove_folder(folder_name)
         else:
             print("Operation cancelled!")
@@ -236,8 +238,11 @@ def add_email_to_folder(db):
     :param db: An email database.
     """
     email_id = choose_email(db.get_email_ids())
-    folder = choose_folder(db.folders)
-    db.folders[folder].append(db.get_email(email_id))
+    if email_id is not None:
+        folder_name = choose_folder(db.folders)
+        if folder_name is not None:
+            db.folders[folder_name].append(db.get_email(email_id))
+            db.get_email(email_id).references += 1
 
 
 def remove_email_from_folder(db):
@@ -251,26 +256,31 @@ def remove_email_from_folder(db):
 
     folder = choose_folder(db.folders)
     emails = db.get_email_ids(folder)
+    if folder is not None:
+        print("The folder contains the following emails:")
+        for idx, email_id in enumerate(emails):
+            print("  {}. {}".format(idx + 1, email_id))
 
-    print("The folder contains the following emails:")
-    for idx, email_id in enumerate(emails):
-        print("  {}. {}".format(idx + 1, email_id))
+        email_id = None
+        cancel = False
+        while not cancel and not email_id:
+            option = read_int_option("Choose an email: (0 to cancel)\n", 0, len(emails) + 1)
+            if option:
+                email_id = emails[option - 1]
 
-    email_id = None
-    cancel = False
-    while not cancel and not email_id:
-        option = read_int_option("Choose an email: (0 to cancel)\n", 0, len(emails) + 1)
-        if option:
-            email_id = emails[option - 1]
+            elif option == 0:
+                cancel = True
+                print("Operation cancelled!")
+                return
 
-        elif option == 0:
-            cancel = True
-            print("Operation cancelled!")
+            else:
+                print("Invalid option, try again.")
 
-        else:
-            print("Invalid option, try again.")
-
-    db.remove_email(email_id, folder)
+        email = db.get_email(email_id)
+        db.remove_email(email, folder)
+        db.get_email(email_id).references -= 1
+        if email.references == 0:
+            db.remove_email(email)
 
 
 def search(db):
@@ -280,15 +290,10 @@ def search(db):
 
     :param db: An email database.
     """
-    search = input("What do you want to search?\n")
-    founds = LinkedList()
-    if len(db.emails) > 0:
-        current = db.emails.first
-        while current is not None:
-            if current.data.subject.find(search) > -1 or current.data.sender.find(search) > -1 or current.data.body.find(search) > -1 or current.data.receiver.find(search) > -1:
-                founds.append(current.data)
-            current = current.next
+    search_text = input("What do you want to search?\n")
+    founds = db.search(search_text)
 
+    if len(founds) > 0:
         current = founds.first
         i = 1
         while current is not None:
@@ -297,6 +302,8 @@ def search(db):
                 current.data.date))
             current = current.next
             i += 1
+    else:
+        print("No messages matched your search.")
 
 
 def show_menu(db):

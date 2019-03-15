@@ -50,7 +50,7 @@ def write_email(email, db, db_config=None):
     :param db: Database
     :param db_config: Database Configuration
     """
-    f = open(os.path.join(db_config.email_dir, str(email.id) + db_config.email_extension), 'a')
+    f = open(os.path.join(db_config.email_dir, str(email.id) + db_config.email_extension), 'w')
     f.write(str(email))
     f.close()
 

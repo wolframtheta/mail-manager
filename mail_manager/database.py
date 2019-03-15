@@ -90,6 +90,7 @@ class Database:
             self.emails.append(email)
         if email.id not in self.get_email_ids(folder_name):
             self.folders[folder_name].append(email)
+        self.get_email(email.id).references += 1
 
     def remove_email(self, email, folder_name=None):
         """
@@ -121,6 +122,7 @@ class Database:
                 raise MailManagerException("The folder \'" + folder_name + "\' does not exist")
             self.folders[folder_name].remove(email)
 
+        self.get_email(email.id).references -= 1
 
 
     def get_email(self, email_id):
@@ -188,22 +190,34 @@ class Database:
         :param folder_name: the name of the folder to be removed
         """
         try:
+            current = self.folders[folder_name].first
+            while current is not None:
+                self.get_email(current.data.id).references -= 1
+                if current.data.references == 0:
+                    self.emails.remove(self.get_email(current.data.id))
+
+                current = current.next
             self.folders.pop(folder_name)
-
         except:
-            raise MailManagerException("La carpeta no existeix!")
-
+            raise MailManagerException("Folder does not exist!")
 
     def search(self, text):
         """
         Searches the text into the titles and bodies of the emails, returning the emails that contains said text.
 
         :param text: the text to be searched
-        :return: the list of emails containing that text.
+        :return: the linked list of emails containing that text.
         """
 
+        founds = LinkedList()
+        if len(self.emails) > 0:
+            current = self.emails.first
+            while current is not None:
+                if current.data.subject.find(text) > -1 or current.data.sender.find(text) > -1 or current.data.body.find(text) > -1 or current.data.receiver.find(text) > -1:
+                    founds.append(current.data)
+                current = current.next
 
-        return []
+        return founds
 
     def get_folder_names(self):
         """
