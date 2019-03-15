@@ -186,7 +186,7 @@ def show_folders(db):
     """
     folder_name = choose_folder(db.folders)
     emails = db.folders[folder_name]
-    if len(emails) <= 0:
+    if len(emails) == 0:
         print("Folder empty")
     else:
         print(emails)
@@ -199,7 +199,7 @@ def create_folder(db):
     :param db: An email database.
     """
     folder_name = input('What name do you want for the folder?\n')
-    while folder_name not in db.get_folder_names:
+    while folder_name in db.get_folder_names():
         print("Folder already exists. Choose another name.\n")
         folder_name = input('What name do you want for the folder?\n')
 
@@ -222,7 +222,7 @@ def delete_folder(db):
     else:
         text_conf = "There are emails inside the folder!" if len(db.folders[folder_name]) > 0 else "There are no emails inside the folder."
         confirm = input(text_conf + " Are you sure you want to delete \'" + folder_name + "\'?\n  1. Yes\n  2. No\n")
-        if confirm == 1:
+        if confirm == '1':
             db.remove_folder(folder_name)
         else:
             print("Operation cancelled!")
